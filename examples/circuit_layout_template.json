@@ -1,0 +1,16 @@
+{
+  "device": "emerald",
+  "distance": 3,
+  "basis": "Z",
+  "rounds": 3,
+  "note": "ILLUSTRATIVE EXAMPLE ONLY. Replace with mapping from the circuit actually executed.",
+  "qubits": [
+    {"id": "D0", "role": "data", "x": 0, "y": 0, "physical": "QB25"},
+    {"id": "A0", "role": "ancilla", "x": 1, "y": 0, "physical": "QB26"},
+    {"id": "D1", "role": "data", "x": 2, "y": 0, "physical": "QB27"},
+    {"id": "A1", "role": "ancilla", "x": 1, "y": 1, "physical": "QB18"},
+    {"id": "D2", "role": "data", "x": 0, "y": 1, "physical": "QB17"}
+  ],
+  "edges": [["D0", "A0"], ["A0", "D1"], ["A0", "A1"], ["A1", "D2"]],
+  "gate_counts": {"CZ": 72, "PRX": 104, "measurements": 33}
+}
