@@ -1,88 +1,122 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0a0d15">
-  <meta name="description" content="Shared experimental dashboard for quantum error correction — plots, decoder diagnostics and guest result uploads.">
-  <title>QEC Lab · Shared Experiments</title>
-  <link rel="stylesheet" href="./style.css">
-  <script src="./config.js" defer></script>
-  <script src="./app.js" defer></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="#0a0d15" name="theme-color"/>
+<meta content="Shared experimental dashboard for quantum error correction — plots, decoder diagnostics and guest result uploads." name="description"/>
+<title>QEC Lab · Interactive Research Dashboard</title>
+<link href="./style.css" rel="stylesheet"/>
+<script defer="" src="./config.js"></script>
+<script defer="" src="./app.js"></script>
 </head>
 <body>
 <div class="app-shell">
-  <aside class="sidebar" aria-label="Navigation">
-    <div class="brand"><div class="brand-icon">◈</div><div class="brand-word"><b>QEC LAB</b><span>Quantum error correction</span></div></div>
-    <div class="sidebar-caption">WORKSPACE</div>
-    <nav class="navigation">
-      <button class="nav-btn active" data-page="overview"><span>◫</span>Overview</button>
-      <button class="nav-btn" data-page="decoder"><span>▦</span>Decoder</button>
-      <button class="nav-btn" data-page="circuit"><span>◇</span>Circuit</button>
-      <button class="nav-btn" data-page="experiments"><span>≡</span>Experiments</button>
-    </nav>
-    <div class="sidebar-bottom">
-      <div class="status-line"><i id="connectionDot" class="status-dot"></i><span id="connectionText">Checking connection…</span></div>
-      <div class="small-muted">Public experimental data · no sign-in</div>
-      <a href="https://github.com/Todo943/qec-lab-dashboard" target="_blank" rel="noopener noreferrer">GitHub repository ↗</a>
-    </div>
-  </aside>
-  <main class="main">
-    <header class="top-header">
-      <div><div class="eyebrow" id="pageEyebrow">RESEARCH OVERVIEW</div><h1 id="pageTitle">Make the invisible measurable.</h1><p id="pageSubtitle">One place for every surface-code experiment.</p></div>
-      <div class="top-actions"><button id="refreshBtn" class="button ghost" title="Fetch new shared results">↻ <span>Refresh</span></button><button id="uploadShortcut" class="button primary">＋ Upload result</button></div>
-    </header>
-    <div id="message" role="status" aria-live="polite" class="message hidden"></div>
-    <section class="page active" id="page-overview">
-      <div class="toolbar">
-        <div class="toolbar-group"><label for="activeExperiment">Viewing experiment</label><select id="activeExperiment" class="input experiment-select"></select></div>
-        <div class="toolbar-group compact"><label class="switch"><input type="checkbox" id="followLatest" checked><span>Follow latest</span></label></div>
-        <div id="lastSync" class="sync-detail">Included sample data</div>
-      </div>
-      <div class="metric-grid">
-        <article class="metric"><div class="metric-title">Hardware LER / round <span class="metric-swatch pink"></span></div><strong id="hardwareLER">—</strong><small id="hardwareLERSource">Fitted from available runs</small></article>
-        <article class="metric"><div class="metric-title">Simulation LER / round <span class="metric-swatch aqua"></span></div><strong id="simLER">—</strong><small id="simLERSource">Stim baseline</small></article>
-        <article class="metric"><div class="metric-title">Code distance</div><strong id="distanceKpi">—</strong><small id="basisKpi">Memory basis</small></article>
-        <article class="metric"><div class="metric-title">Shots per round</div><strong id="shotsKpi">—</strong><small id="deviceKpi">Processor</small></article>
-      </div>
-      <div class="columns-main">
-        <section class="panel chart-panel"><div class="panel-head"><div><div class="section-kicker">01 / PERFORMANCE</div><h2>Logical error probability</h2><p>Probability of a decoded logical failure as rounds increase.</p></div><label class="checkline"><input id="showFit" type="checkbox" checked> Fit curve</label></div>
-          <div id="mainChart" class="svg-chart" role="img" aria-label="Hardware and simulation logical error probability by stabilizer round"></div>
-          <div class="legend"><span><i class="legend-dot pink"></i>IQM hardware</span><span><i class="legend-dot aqua"></i>Stim simulation</span><span class="legend-note">Hover points for values</span></div>
-          <div class="chart-footer"><div id="plotNote" class="small-muted">—</div><button id="exportCSV" class="text-button">Export CSV ↓</button></div>
-        </section>
-        <section class="panel info-panel"><div class="section-kicker">02 / EXPERIMENT</div><h2>Run details</h2><div id="metaPanel" class="metadata"></div><div class="fine-divider"></div><div class="small-muted">Hardware and simulation are labeled separately. Circuit illustrations are reference artifacts, not necessarily from this run.</div></section>
-      </div>
-      <div class="bottom-strip"><div><div class="section-kicker">THE TAKEAWAY</div><h3 id="takeawayTitle">Hardware vs simulation</h3><p id="takeawayBody">Choose an experiment to inspect the measurement gap.</p></div><button class="button secondary" data-go="decoder">Explore detector data →</button></div>
-    </section>
-    <section class="page" id="page-decoder">
-      <div class="two-toolbar"><div><div class="section-kicker">POST-PROCESSING</div><h2>Inside the decoder</h2><p>See which stabilizers fire and how many logical predictions fail.</p></div><div class="toolbar-group"><label for="eventSelect">Detector dataset</label><select id="eventSelect" class="input"></select></div></div>
-      <div class="metric-grid three"><article class="metric"><div class="metric-title">Shots inspected</div><strong id="eventShots">—</strong></article><article class="metric"><div class="metric-title">Detector count</div><strong id="eventCount">—</strong></article><article class="metric"><div class="metric-title">Decoded failure probability</div><strong id="eventFailure">—</strong></article></div>
-      <div class="columns-equal"><section class="panel"><div class="panel-head"><div><div class="section-kicker">DETECTION EVENTS</div><h2>Shot heatmap</h2></div><span class="mini-tag">first 35 shots</span></div><div id="heatmap" class="heatmap-container empty-visual">Upload or choose per-shot detector data to view.</div><p class="small-muted">Each bright cell is a fired detector. Rows = shots, columns = detectors.</p></section>
-      <section class="panel"><div class="section-kicker">DIAGNOSTICS</div><h2>Detector firing rates</h2><div id="firingRates" class="firing-list empty-visual">Detector rates appear here when event data is available.</div><div class="fine-divider"></div><div id="decoderNote" class="small-muted">Predictions and observed logical flips are needed to calculate decoded failures.</div></section></div>
-      <div class="bottom-strip"><div><h3>Have detector arrays?</h3><p>Publish a JSON containing <code>det_events</code> and optionally <code>obs_flips</code> and <code>predicted_flips</code>.</p></div><button class="button secondary" data-go="upload">Upload detector data →</button></div>
-    </section>
-    <section class="page" id="page-circuit">
-      <div class="two-toolbar"><div><div class="section-kicker">CODE GEOMETRY</div><h2>Under the hood</h2><p>Rotated surface-code structure and a saved IQM Emerald compilation.</p></div><span class="mini-tag warning">Reference Emerald artifact · not linked to selected run</span></div>
-      <div class="metric-grid three"><article class="metric"><div class="metric-title">Physical qubits</div><strong>17</strong><small>d=3 · 9 data + 8 ancilla</small></article><article class="metric"><div class="metric-title">CZ gates</div><strong>72</strong><small>Saved 3-round circuit</small></article><article class="metric"><div class="metric-title">PRX gates</div><strong>104</strong><small>Saved 3-round circuit</small></article></div>
-      <div class="columns-equal"><section class="panel"><div class="section-kicker">LOGICAL CIRCUIT</div><h2>Before compilation</h2><div class="circuit-frame"><img src="./assets/circuit_logical_d3_Z_r1.png" alt="Distance 3 logical Qrisp surface-code circuit" loading="lazy"></div></section><section class="panel"><div class="section-kicker">NATIVE IQM CIRCUIT</div><h2>After compilation</h2><div class="circuit-frame"><img src="./assets/circuit_native_d3_Z_r1_emerald.png" alt="Transpiled native IQM Emerald circuit" loading="lazy"></div></section></div>
-      <div class="notice"><strong>Provenance matters.</strong> The saved error-rate results are labeled Garnet, whereas these circuit diagrams were generated for Emerald. They are not measurements from the same run.</div>
-    </section>
-    <section class="page" id="page-experiments">
-      <div class="two-toolbar"><div><div class="section-kicker">SHARED WORKSPACE</div><h2>Experiments</h2><p>New uploads appear here for everyone after they are saved.</p></div><button id="openUpload" class="button primary">＋ New experiment</button></div>
-      <div class="panel"><div class="panel-head"><h2>Experiment history</h2><span id="experimentCount" class="mini-tag">0 runs</span></div><div class="table-scroller"><table class="results-table"><thead><tr><th>Experiment</th><th>Device</th><th>Distance</th><th>Basis</th><th>Hardware LER</th><th>Uploaded</th><th></th></tr></thead><tbody id="experimentRows"></tbody></table></div></div>
-      <div class="bottom-strip"><div><h3>Share results with the team</h3><p>Anyone can submit a valid JSON or CSV using the upload page. No account is required.</p></div><button class="button secondary" data-go="upload">Open upload →</button></div>
-    </section>
-    <section class="page" id="page-upload">
-      <div class="two-toolbar"><div><div class="section-kicker">CONTRIBUTE A RUN</div><h2>Upload results.</h2><p>Drop in a JSON or CSV. We'll validate it, preview it, and publish it for the team.</p></div><button class="button ghost" data-go="experiments">← Experiment history</button></div>
-      <div class="upload-layout">
-      <section class="panel"><div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Select result file"><div class="upload-icon">↑</div><strong>Drop your result file here</strong><p>or click to browse · JSON / CSV · maximum 2 MB</p><input id="fileInput" type="file" accept=".json,.csv,application/json,text/csv" hidden></div><div id="fileDetails" class="file-details">No file selected</div>
-      <form id="uploadForm" class="upload-form"><div class="form-row"><label>Experiment name<input id="uploadLabel" class="input" required maxlength="70" placeholder="e.g. Garnet d3 · calibrated decoder"></label><label>Processor<input id="uploadDevice" class="input" required maxlength="40" placeholder="garnet / emerald / simulator"></label></div><div class="form-row"><label>Code distance<input id="uploadDistance" class="input" type="number" min="1" max="31" value="3" required></label><label>Memory basis<select id="uploadBasis" class="input"><option value="Z">Z memory</option><option value="X">X memory</option></select></label></div><label id="parentField" class="hidden">Related aggregate experiment<select id="parentSelect" class="input"><option value="">None / standalone detector dataset</option></select></label><label>Notes (optional)<textarea id="uploadNotes" class="input textarea" maxlength="240" rows="3" placeholder="What changed in this experiment?"></textarea></label><div class="notice small" id="uploadAvailability">Shared upload requires the database to be configured by the repository owner.</div><button type="submit" id="publishButton" class="button primary wide" disabled>Publish to dashboard →</button></form></section>
-      <aside class="panel preview-panel"><div class="section-kicker">BEFORE YOU PUBLISH</div><h2>Data preview</h2><div id="uploadPreview" class="preview-empty">Choose an experiment file. We'll show its type, metadata, and data checks here.</div><div class="fine-divider"></div><h3>What you can upload</h3><p class="small-muted"><b>Aggregate JSON:</b> rounds mapped to <code>[probability, standard error]</code> under <code>hardware</code> and/or <code>simulation</code>.</p><p class="small-muted"><b>Aggregate CSV:</b> columns <code>round,hardware_p,hardware_se,simulation_p,simulation_se</code>.</p><p class="small-muted"><b>Detector JSON:</b> <code>det_events</code> matrix; optional <code>obs_flips</code> and <code>predicted_flips</code>.</p><a class="example-link" href="./examples/garnet_d3_z_results.json" download>↓ Example aggregate JSON</a><a class="example-link" href="./examples/synthetic_detector_events.json" download>↓ Synthetic detector JSON (demo only)</a><div class="notice small">Do not upload IQM API keys, confidential raw data, or personal information. Uploaded experimental data is public.</div></aside>
-      </div>
-    </section>
-    <footer class="footer"><span>QEC LAB / Built for surface-code memory experiments</span><span>Analysis is not an independent validation of IQM hardware.</span></footer>
-  </main>
+<aside aria-label="Navigation" class="sidebar">
+<div class="brand"><div class="brand-icon">◈</div><div class="brand-word"><b>QEC LAB</b><span>Quantum error correction</span></div></div>
+<div class="sidebar-caption">WORKSPACE</div>
+<nav class="navigation">
+<button class="nav-btn active" data-page="overview"><span>◫</span>Overview</button>
+<button class="nav-btn" data-page="compare"><span>↗</span>Compare</button><button class="nav-btn" data-page="decoder"><span>▦</span>Decoder</button>
+<button class="nav-btn" data-page="circuit"><span>◇</span>Circuit</button>
+<button class="nav-btn" data-page="experiments"><span>≡</span>Experiments</button>
+<button class="nav-btn" data-page="guide"><span>?</span>How to upload</button></nav>
+<div class="sidebar-bottom">
+<div class="status-line"><i class="status-dot" id="connectionDot"></i><span id="connectionText">Checking connection…</span></div>
+<div class="small-muted">Public experimental data · no sign-in</div>
+<a href="https://github.com/Todo943/qec-lab-dashboard" rel="noopener noreferrer" target="_blank">GitHub repository ↗</a>
+</div>
+</aside>
+<main class="main">
+<header class="top-header">
+<div><div class="eyebrow" id="pageEyebrow">RESEARCH OVERVIEW</div><h1 id="pageTitle">Make the invisible measurable.</h1><p id="pageSubtitle">One place for every surface-code experiment.</p></div>
+<div class="top-actions"><button class="button ghost" id="refreshBtn" title="Fetch new shared results">↻ <span>Refresh</span></button><button class="button primary" id="uploadShortcut">＋ Upload result</button></div>
+</header>
+<div aria-live="polite" class="message hidden" id="message" role="status"></div>
+<section class="page active" id="page-overview">
+<div class="toolbar">
+<div class="toolbar-group"><label for="activeExperiment">Viewing experiment</label><select class="input experiment-select" id="activeExperiment"></select></div>
+<div class="toolbar-group compact"><label class="switch"><input checked="" id="followLatest" type="checkbox"/><span>Follow latest</span></label></div>
+<div class="sync-detail" id="lastSync">Included sample data</div>
+</div>
+<div class="metric-grid">
+<article class="metric"><div class="metric-title">Hardware LER / round <span class="metric-swatch pink"></span></div><strong id="hardwareLER">—</strong><small id="hardwareLERSource">Fitted from available runs</small></article>
+<article class="metric"><div class="metric-title">Simulation LER / round <span class="metric-swatch aqua"></span></div><strong id="simLER">—</strong><small id="simLERSource">Stim baseline</small></article>
+<article class="metric"><div class="metric-title">Code distance</div><strong id="distanceKpi">—</strong><small id="basisKpi">Memory basis</small></article>
+<article class="metric"><div class="metric-title">Shots per round</div><strong id="shotsKpi">—</strong><small id="deviceKpi">Processor</small></article>
+</div>
+<div class="columns-main">
+<section class="panel chart-panel"><div class="panel-head"><div><div class="section-kicker">01 / PERFORMANCE</div><h2>Logical error probability</h2><p>Probability of a decoded logical failure as rounds increase.</p></div><label class="checkline"><input checked="" id="showFit" type="checkbox"/> Fit curve</label><div class="chart-options"><label class="checkline"><input checked="" id="showHardware" type="checkbox"/> Hardware</label><label class="checkline"><input checked="" id="showSimulation" type="checkbox"/> Simulation</label></div></div>
+<div aria-label="Hardware and simulation logical error probability by stabilizer round" class="svg-chart" id="mainChart" role="img"></div><div aria-live="polite" class="round-inspector" id="roundInspector">Select a point in the chart to inspect a measurement round.</div>
+<div class="legend"><span><i class="legend-dot pink"></i>IQM hardware</span><span><i class="legend-dot aqua"></i>Stim simulation</span><span class="legend-note">Hover points for values</span></div>
+<div class="chart-footer"><div class="small-muted" id="plotNote">—</div><button class="text-button" id="exportCSV">Export CSV ↓</button></div>
+</section>
+<section class="panel info-panel"><div class="section-kicker">02 / EXPERIMENT</div><h2>Run details</h2><div class="metadata" id="metaPanel"></div><div class="fine-divider"></div><div class="small-muted">Hardware and simulation are labeled separately. Circuit illustrations are reference artifacts, not necessarily from this run.</div></section>
+</div>
+<div class="bottom-strip"><div><div class="section-kicker">THE TAKEAWAY</div><h3 id="takeawayTitle">Hardware vs simulation</h3><p id="takeawayBody">Choose an experiment to inspect the measurement gap.</p></div><button class="button secondary" data-go="decoder">Explore detector data →</button></div>
+<div class="data-help"><div><strong>Data needed for Overview</strong><p>Upload <b>aggregate JSON/CSV</b> with <code>round</code>, logical error probability (fraction 0–1), and optionally standard error, shots, device, code distance and memory basis.</p></div><button class="button secondary" data-go="upload" data-kind="aggregate">Upload aggregate results →</button></div></section>
+
+<section class="page" id="page-compare">
+<div class="two-toolbar"><div><div class="section-kicker">SIDE BY SIDE</div><h2>Compare experiments.</h2><p>Test whether a circuit, qubit mapping or decoder change improves memory performance.</p></div><button class="button ghost" id="compareCSV">↓ Export comparison</button></div>
+<div class="toolbar compare-controls">
+<div class="toolbar-group compare-select"><label for="compareA">Experiment A</label><select class="input" id="compareA"></select></div>
+<div class="compare-versus">vs</div>
+<div class="toolbar-group compare-select"><label for="compareB">Experiment B</label><select class="input" id="compareB"></select></div>
+<div class="toolbar-group"><label for="compareSeries">Series</label><select class="input" id="compareSeries"><option value="hardware">Hardware</option><option value="simulation">Simulation</option></select></div>
+</div>
+<div class="notice small hidden" id="compareAlert"></div>
+<div class="columns-main"><section class="panel chart-panel"><div class="section-kicker">EXPERIMENT COMPARISON</div><h2>Logical failure probability</h2><div class="svg-chart" id="compareChart"></div><p class="small-muted">Select different experiments above. Error bars represent uploaded uncertainty when provided.</p></section><section class="panel"><div class="section-kicker">FIT AND PERFORMANCE</div><h2>Comparison summary</h2><div class="metadata" id="compareStats"></div><p class="small-muted">A smaller fitted error rate is not proof of an improvement unless circuit conditions are comparable and uncertainties are considered.</p></section></div>
+<div class="data-help"><div><strong>Data needed for Compare</strong><p>Publish at least two <b>aggregate</b> experiments. For fair comparison, keep code distance, basis, round counts and measurement conventions consistent.</p></div><button class="button secondary" data-go="upload" data-kind="aggregate">Upload comparison data →</button></div>
+</section><section class="page" id="page-decoder">
+<div class="two-toolbar"><div><div class="section-kicker">POST-PROCESSING</div><h2>Inside the decoder</h2><p>See which stabilizers fire and how many logical predictions fail.</p></div><div class="toolbar-group"><label for="eventSelect">Detector dataset</label><select class="input" id="eventSelect"></select></div></div><div class="toolbar decoder-controls">
+<div class="toolbar-group"><label for="shotStart">Starting shot</label><input class="input small-input" id="shotStart" min="1" type="number" value="1"/></div>
+<div class="toolbar-group"><label for="shotCount">Shots visible</label><select class="input" id="shotCount"><option>15</option><option selected="">35</option><option>60</option><option>100</option></select></div>
+<div class="toolbar-group"><label for="detectorStart">First detector</label><input class="input small-input" id="detectorStart" min="0" type="number" value="0"/></div>
+<div class="toolbar-group"><label for="shotFilter">Show shots</label><select class="input" id="shotFilter"><option value="all">All</option><option value="fired">At least one event</option><option value="failures">Decoder failures</option></select></div>
+</div>
+<div class="metric-grid three"><article class="metric"><div class="metric-title">Shots inspected</div><strong id="eventShots">—</strong></article><article class="metric"><div class="metric-title">Detector count</div><strong id="eventCount">—</strong></article><article class="metric"><div class="metric-title">Decoded failure probability</div><strong id="eventFailure">—</strong></article></div>
+<div class="columns-equal"><section class="panel"><div class="panel-head"><div><div class="section-kicker">DETECTION EVENTS</div><h2>Shot heatmap</h2></div><span class="mini-tag">first 35 shots</span></div><div class="heatmap-container empty-visual" id="heatmap">Upload or choose per-shot detector data to view.</div><p class="small-muted">Each bright cell is a fired detector. Rows = shots, columns = detectors.</p></section>
+<section class="panel"><div class="section-kicker">DIAGNOSTICS</div><h2>Detector firing rates</h2><div class="firing-list empty-visual" id="firingRates">Detector rates appear here when event data is available.</div><div class="fine-divider"></div><div class="small-muted" id="decoderNote">Predictions and observed logical flips are needed to calculate decoded failures.</div></section></div><div class="columns-equal"><section class="panel"><div class="section-kicker">SHOTS</div><h2>Selected shot</h2><div class="shot-summary small-muted" id="shotInspector">Select a row in the heatmap to inspect its detection pattern.</div></section><section class="panel"><div class="section-kicker">SYNDROME WEIGHTS</div><h2>Distribution</h2><div class="weight-histogram empty-visual" id="weightHistogram">Upload detector data to see syndrome weights.</div></section></div>
+<div class="bottom-strip"><div><h3>Have detector arrays?</h3><p>Publish a JSON containing <code>det_events</code> and optionally <code>obs_flips</code> and <code>predicted_flips</code>.</p></div><button class="button secondary" data-go="upload">Upload detector data →</button></div>
+<div class="data-help"><div><strong>Data needed for Decoder</strong><p>Upload <b>detector JSON</b>: required <code>det_events</code> (shots × detectors), optional <code>obs_flips</code> and <code>predicted_flips</code> (shots × logical observables). Raw IQM counts alone cannot be decoded here.</p></div><button class="button secondary" data-go="upload" data-kind="events">Upload detector events →</button></div></section>
+<section class="page" id="page-circuit">
+<div class="two-toolbar"><div><div class="section-kicker">CODE GEOMETRY</div><h2>Under the hood</h2><p>Rotated surface-code structure and a saved IQM Emerald compilation.</p></div><span class="mini-tag warning">Reference Emerald artifact · not linked to selected run</span></div><div class="toolbar"><div class="toolbar-group" style="flex:1;max-width:560px"><label for="circuitSelect">Circuit or layout</label><select class="input" id="circuitSelect"></select></div><span class="small-muted">Select a qubit to inspect its role and physical mapping.</span></div>
+<div class="columns-main"><section class="panel"><div class="section-kicker">INTERACTIVE GEOMETRY</div><h2>Qubit layout</h2><div class="circuit-visual" id="circuitSvg"></div><div class="legend"><span><i class="legend-dot aqua"></i>Data qubit</span><span><i class="legend-dot pink"></i>Ancilla qubit</span><span class="legend-note">Select a node</span></div></section><section class="panel"><div class="section-kicker">SELECTED QUBIT</div><h2>Qubit details</h2><div class="metadata" id="qubitInspector"></div><div class="fine-divider"></div><div class="small-muted" id="layoutStats"></div></section></div>
+<div class="metric-grid three"><article class="metric"><div class="metric-title">Physical qubits</div><strong>17</strong><small>d=3 · 9 data + 8 ancilla</small></article><article class="metric"><div class="metric-title">CZ gates</div><strong>72</strong><small>Saved 3-round circuit</small></article><article class="metric"><div class="metric-title">PRX gates</div><strong>104</strong><small>Saved 3-round circuit</small></article></div>
+<div class="columns-equal"><section class="panel"><div class="section-kicker">LOGICAL CIRCUIT</div><h2>Before compilation</h2><div class="circuit-frame"><img alt="Distance 3 logical Qrisp surface-code circuit" loading="lazy" src="./assets/circuit_logical_d3_Z_r1.png"/></div></section><section class="panel"><div class="section-kicker">NATIVE IQM CIRCUIT</div><h2>After compilation</h2><div class="circuit-frame"><img alt="Transpiled native IQM Emerald circuit" loading="lazy" src="./assets/circuit_native_d3_Z_r1_emerald.png"/></div></section></div>
+<div class="notice"><strong>Provenance matters.</strong> The saved error-rate results are labeled Garnet, whereas these circuit diagrams were generated for Emerald. They are not measurements from the same run.</div>
+<div class="data-help"><div><strong>Data needed for Circuit Explorer</strong><p>Upload <b>circuit-layout JSON</b> containing <code>qubits</code> with identifiers, roles, coordinates, optional physical qubit mapping, and optional <code>edges</code> and gate counts. Images above remain fixed reference diagrams.</p></div><button class="button secondary" data-go="upload" data-kind="circuit">Upload circuit layout →</button></div></section>
+<section class="page" id="page-experiments">
+<div class="two-toolbar"><div><div class="section-kicker">SHARED WORKSPACE</div><h2>Experiments</h2><p>New uploads appear here for everyone after they are saved.</p></div><button class="button primary" id="openUpload">＋ New experiment</button></div><div class="toolbar"><div class="toolbar-group" style="flex:1;min-width:190px"><label for="searchRuns">Search experiments</label><input class="input" id="searchRuns" placeholder="Name, processor, notes…"/></div><div class="toolbar-group"><label for="filterKind">Data type</label><select class="input" id="filterKind"><option value="all">All types</option><option value="aggregate">Aggregate results</option><option value="events">Decoder data</option><option value="circuit">Circuit layouts</option></select></div><div class="toolbar-group"><label for="filterBasis">Memory basis</label><select class="input" id="filterBasis"><option value="all">X and Z</option><option value="Z">Z memory</option><option value="X">X memory</option></select></div></div>
+<div class="panel"><div class="panel-head"><h2>Experiment history</h2><span class="mini-tag" id="experimentCount">0 runs</span></div><div class="table-scroller"><table class="results-table"><thead><tr><th>Experiment</th><th>Device</th><th>Type</th><th>Distance</th><th>Basis</th><th>Hardware LER</th><th>Uploaded</th><th></th></tr></thead><tbody id="experimentRows"></tbody></table><p class="small-muted">Showing the latest 100 shared records. Older experiments may require pagination in a future version.</p></div></div>
+<div class="bottom-strip"><div><h3>Share results with the team</h3><p>Anyone can submit a valid JSON or CSV using the upload page. No account is required.</p></div><button class="button secondary" data-go="upload">Open upload →</button></div>
+</section>
+<section class="page" id="page-upload">
+<div class="two-toolbar"><div><div class="section-kicker">CONTRIBUTE A RUN</div><h2>Upload results.</h2><p>Drop in a JSON or CSV. We'll validate it, preview it, and publish it for the team.</p></div><button class="button ghost" data-go="experiments">← Experiment history</button></div>
+<div class="upload-layout">
+<section class="panel"><div aria-label="Result type" class="upload-kinds" role="group">
+<button class="upload-kind active" data-upload-kind="aggregate" type="button"><strong>01 · Results</strong><span>Logical error vs rounds</span></button>
+<button class="upload-kind" data-upload-kind="events" type="button"><strong>02 · Decoder</strong><span>Per-shot detection events</span></button>
+<button class="upload-kind" data-upload-kind="circuit" type="button"><strong>03 · Circuit</strong><span>Qubit coordinates and mapping</span></button>
+</div><div aria-live="polite" class="format-required" id="uploadRequirement"></div><div aria-label="Select result file" class="dropzone" id="dropzone" role="button" tabindex="0"><div class="upload-icon">↑</div><strong>Drop your result file here</strong><p>or click to browse · JSON / CSV · maximum 2 MB</p><input accept=".json,.csv,application/json,text/csv" hidden="" id="fileInput" type="file"/></div><div class="file-details" id="fileDetails">No file selected</div>
+<form class="upload-form" id="uploadForm"><div class="form-row"><label>Experiment name<input class="input" id="uploadLabel" maxlength="70" placeholder="e.g. Garnet d3 · calibrated decoder" required=""/></label><label>Processor<input class="input" id="uploadDevice" maxlength="40" placeholder="garnet / emerald / simulator" required=""/></label></div><div class="form-row"><label>Code distance<input class="input" id="uploadDistance" max="31" min="1" required="" type="number" value="3"/></label><label>Memory basis<select class="input" id="uploadBasis"><option value="Z">Z memory</option><option value="X">X memory</option></select></label></div><label class="hidden" id="parentField">Related aggregate experiment<select class="input" id="parentSelect"><option value="">None / standalone detector dataset</option></select></label><label>Notes (optional)<textarea class="input textarea" id="uploadNotes" maxlength="240" placeholder="What changed in this experiment?" rows="3"></textarea></label><div class="notice small" id="uploadAvailability">Shared upload requires the database to be configured by the repository owner.</div><button class="button primary wide" disabled="" id="publishButton" type="submit">Publish to dashboard →</button></form></section>
+<aside class="panel preview-panel"><div class="section-kicker">BEFORE YOU PUBLISH</div><h2>Data preview</h2><div class="preview-empty" id="uploadPreview">Choose an experiment file. We'll show its type, metadata, and data checks here.</div><div class="fine-divider"></div><h3>Required data format</h3><p class="small-muted" id="formatDescription"></p><pre class="format-example" id="formatExample"></pre>
+<div id="exampleDownloads"><a class="example-link" download="" href="./examples/garnet_d3_z_results.json">↓ Aggregate JSON example</a><a class="example-link" download="" href="./examples/aggregate_rounds.csv">↓ Aggregate CSV example</a><a class="example-link" download="" href="./examples/synthetic_detector_events.json">↓ Synthetic detector JSON (demo only)</a><a class="example-link" download="" href="./examples/circuit_layout_template.json">↓ Circuit-layout JSON template</a></div>
+<div class="notice small">Public uploads: only upload non-sensitive experimental data. Never upload IQM tokens or secret keys. Uploaded runs are visible to everyone.</div></aside>
+</div>
+</section><section class="page" id="page-guide">
+<div class="two-toolbar"><div><div class="section-kicker">TEAM HANDBOOK</div><h2>What goes where?</h2><p>Three upload types. Every dataset should clearly identify its device, code distance, basis, and experiment.</p></div><button class="button primary" data-go="upload">＋ Upload a result</button></div>
+<div class="guide-cards">
+<article class="panel guide-card"><div class="section-kicker">01 / OVERVIEW + COMPARE</div><h2>Aggregate result</h2><p>One logical error probability for each number of measurement rounds. Supply uncertainty if known.</p><div class="code-fields"><code>hardware</code> or <code>simulation</code> · <code>round</code> · <code>p</code> · <code>se</code> (optional)</div><p><b>Accepts:</b> JSON or CSV. Add <code>shots</code>, <code>device</code>, <code>distance</code>, <code>basis</code> where available.</p><a download="" href="./examples/garnet_d3_z_results.json">↓ Download an example</a></article>
+<article class="panel guide-card"><div class="section-kicker">02 / DECODER</div><h2>Detection-event results</h2><p>Binary detector matrix from Qrisp/Stim post-processing. Predictions are needed for a logical-failure calculation.</p><div class="code-fields"><code>det_events</code> · <code>obs_flips</code> (optional) · <code>predicted_flips</code> (optional)</div><p><b>Accepts:</b> JSON. All supplied matrices must have the same number of shots. Raw hardware counts are not yet supported.</p><a download="" href="./examples/synthetic_detector_events.json">↓ Download synthetic example</a></article>
+<article class="panel guide-card"><div class="section-kicker">03 / CIRCUIT</div><h2>Qubit layout</h2><p>A geometry map for an interactive view of data and ancilla qubits. This is a layout, not an executable Qrisp circuit.</p><div class="code-fields"><code>qubits</code> · <code>id</code> · <code>role</code> · <code>x</code> · <code>y</code> · <code>edges</code> (optional)</div><p><b>Accepts:</b> JSON. Add physical mapping, gate counts and a note identifying the compilation.</p><a download="" href="./examples/circuit_layout_template.json">↓ Download layout template</a></article>
+</div>
+<div class="panel"><div class="section-kicker">HOW TO PUBLISH</div><h2>Three simple steps</h2><div class="guide-steps"><div><b>1 · Export</b><p>Save the supported JSON/CSV file from your experiment or decoder script.</p></div><div><b>2 · Upload</b><p>Go to Upload, choose the matching category, select your file, and review its validation.</p></div><div><b>3 · Share</b><p>Publish. The run appears in Experiments and its corresponding analysis view. Other users see it on refresh.</p></div></div></div>
+<div class="notice"><b>Scientific interpretation:</b> Measurement plots and fitted LERs come from user-submitted data. The dashboard is not a quantum simulator, a PyMatching execution environment, or an independent verification of the reported experiments.</div>
+</section>
+<footer class="footer"><span>QEC LAB / Built for surface-code memory experiments</span><span>Analysis is not an independent validation of IQM hardware.</span></footer>
+</main>
 </div>
 </body>
 </html>
