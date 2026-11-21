@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="#0a0d15" name="theme-color"/>
+<meta content="Shared experimental dashboard for quantum error correction — plots, decoder diagnostics and guest result uploads." name="description"/>
+<title>QEC Lab · Interactive Research Dashboard</title>
+<link href="./style.css" rel="stylesheet"/>
+<script defer="" src="./config.js"></script>
+<script defer="" src="./app.js"></script>
+</head>
+<body>
+<div class="app-shell">
+<aside aria-label="Navigation" class="sidebar">
+<div class="brand"><div class="brand-icon">◈</div><div class="brand-word"><b>QEC LAB</b><span>Quantum error correction</span></div></div>
+<div class="sidebar-caption">WORKSPACE</div>
+<nav class="navigation">
+<button class="nav-btn active" data-page="overview">Results</button>
+<button class="nav-btn" data-page="decoder">Decoder</button>
+<button class="nav-btn" data-page="circuit">Circuit evidence</button>
+
+</nav>
+<div class="sidebar-bottom">
+<div class="status-line"><i class="status-dot" id="connectionDot"></i><span id="connectionText">Checking connection…</span></div>
+<div class="small-muted">Public experimental data · no sign-in</div>
+<a href="https://github.com/Todo943/qec-lab-dashboard" rel="noopener noreferrer" target="_blank">GitHub repository ↗</a>
+</div>
+</aside>
+<main class="main">
+<header class="top-header">
+<div><div class="eyebrow" id="pageEyebrow">RESEARCH OVERVIEW</div><h1 id="pageTitle">Logical memory performance</h1><p id="pageSubtitle">Compare experiments and inspect the measured logical error rate.</p></div>
+<div class="top-actions"><button class="button ghost" id="refreshBtn" title="Fetch new shared results">↻ <span>Refresh</span></button><button class="button primary" id="uploadShortcut">＋ Upload result</button></div>
+</header>
+<div aria-live="polite" class="message hidden" id="message" role="status"></div>
+<section class="page active" id="page-overview">
+<div class="toolbar">
+<div class="toolbar-group"><label for="activeExperiment">Viewing experiment</label><select class="input experiment-select" id="activeExperiment"></select></div>
+<div class="toolbar-group compact"><label class="switch"><input checked="" id="followLatest" type="checkbox"/><span>Follow latest</span></label></div>
+<div class="sync-detail" id="lastSync">Included sample data</div>
+</div>
+<div class="metric-grid">
+<article class="metric"><div class="metric-title">Hardware LER / round <span class="metric-swatch pink"></span></div><strong id="hardwareLER">—</strong><small id="hardwareLERSource">Fitted from available runs</small></article>
+<article class="metric"><div class="metric-title">Simulation LER / round <span class="metric-swatch aqua"></span></div><strong id="simLER">—</strong><small id="simLERSource">Stim baseline</small></article>
+<article class="metric"><div class="metric-title">Code distance</div><strong id="distanceKpi">—</strong><small id="basisKpi">Memory basis</small></article>
+<article class="metric"><div class="metric-title">Shots per round</div><strong id="shotsKpi">—</strong><small id="deviceKpi">Processor</small></article>
+</div>
+<div class="columns-main">
+<section class="panel chart-panel"><div class="panel-head"><div><div class="section-kicker">01 / PERFORMANCE</div><h2>Logical error probability</h2><p>Probability of a decoded logical failure as rounds increase.</p></div><label class="checkline"><input checked="" id="showFit" type="checkbox"/> Fit curve</label><div class="chart-options"><label class="checkline"><input checked="" id="showHardware" type="checkbox"/> Hardware</label><label class="checkline"><input checked="" id="showSimulation" type="checkbox"/> Simulation</label></div></div>
+<div aria-label="Hardware and simulation logical error probability by stabilizer round" class="svg-chart" id="mainChart" role="img"></div><div aria-live="polite" class="round-inspector" id="roundInspector">Select a point in the chart to inspect a measurement round.</div>
+<div class="legend"><span><i class="legend-dot pink"></i>IQM hardware</span><span><i class="legend-dot aqua"></i>Stim simulation</span><span class="legend-note">Hover points for values</span></div>
+<div class="chart-footer"><div class="small-muted" id="plotNote">—</div><button class="text-button" id="exportCSV">Export CSV ↓</button></div>
+</section>
+<section class="panel info-panel"><div class="section-kicker">02 / EXPERIMENT</div><h2>Run details</h2><div class="metadata" id="metaPanel"></div><div class="fine-divider"></div><div class="small-muted">Hardware and simulation are labeled separately. Circuit illustrations are reference artifacts, not necessarily from this run.</div></section>
+</div>
+
+<details class="panel compare-fold"><summary>Compare two experiments <span>Optional · expand</span></summary><div class="two-toolbar"><div><div class="section-kicker">SIDE BY SIDE</div><h2>Compare two runs</h2><p>Select two comparable runs to test for improvement.</p></div><button class="button ghost" id="compareCSV">↓ Export comparison</button></div><div class="toolbar compare-controls">
+<div class="toolbar-group compare-select"><label for="compareA">Experiment A</label><select class="input" id="compareA"></select></div>
+<div class="compare-versus">vs</div>
+<div class="toolbar-group compare-select"><label for="compareB">Experiment B</label><select class="input" id="compareB"></select></div>
+<div class="toolbar-group"><label for="compareSeries">Series</label><select class="input" id="compareSeries"><option value="hardware">Hardware</option><option value="simulation">Simulation</option></select></div>
+</div><div class="notice small hidden" id="compareAlert"></div><div class="columns-main"><section class="panel chart-panel"><div class="section-kicker">EXPERIMENT COMPARISON</div><h2>Logical failure probability</h2><div class="svg-chart" id="compareChart"></div><p class="small-muted">Select different experiments above. Error bars represent uploaded uncertainty when provided.</p></section><section class="panel"><div class="section-kicker">FIT AND PERFORMANCE</div><h2>Comparison summary</h2><div class="metadata" id="compareStats"></div><p class="small-muted">A smaller fitted error rate is not proof of an improvement unless circuit conditions are comparable and uncertainties are considered.</p></section></div></details><div class="data-help"><div><strong>Upload logical error results</strong><p>JSON or CSV: per-round hardware and/or simulation logical error probabilities; optional standard errors and shot counts. Fractions, not percentages. Use the same format for comparisons.</p></div><button class="button secondary" data-go="upload" data-kind="aggregate">Upload aggregate results →</button></div></section>
+<section class="page" id="page-decoder">
+<div class="two-toolbar"><div><div class="section-kicker">POST-PROCESSING</div><h2>Inside the decoder</h2><p>See which stabilizers fire and how many logical predictions fail.</p></div><div class="toolbar-group"><label for="eventSelect">Detector dataset</label><select class="input" id="eventSelect"></select></div></div><div class="toolbar decoder-controls">
+<div class="toolbar-group"><label for="shotStart">Starting shot</label><input class="input small-input" id="shotStart" min="1" type="number" value="1"/></div>
+<div class="toolbar-group"><label for="shotCount">Shots visible</label><select class="input" id="shotCount"><option>15</option><option selected="">35</option><option>60</option><option>100</option></select></div>
+<div class="toolbar-group"><label for="detectorStart">First detector</label><input class="input small-input" id="detectorStart" min="0" type="number" value="0"/></div>
+<div class="toolbar-group"><label for="shotFilter">Show shots</label><select class="input" id="shotFilter"><option value="all">All</option><option value="fired">At least one event</option><option value="failures">Decoder failures</option></select></div>
+</div>
+<div class="metric-grid three"><article class="metric"><div class="metric-title">Shots inspected</div><strong id="eventShots">—</strong></article><article class="metric"><div class="metric-title">Detector count</div><strong id="eventCount">—</strong></article><article class="metric"><div class="metric-title">Decoded failure probability</div><strong id="eventFailure">—</strong></article></div>
+<div class="columns-equal"><section class="panel"><div class="panel-head"><div><div class="section-kicker">DETECTION EVENTS</div><h2>Shot heatmap</h2></div><span class="mini-tag">Select a shot</span></div><div class="heatmap-container empty-visual" id="heatmap">Upload or choose per-shot detector data to view.</div><p class="small-muted">Each bright cell is a fired detector. Rows = shots, columns = detectors.</p></section>
+<section class="panel"><div class="section-kicker">DIAGNOSTICS</div><h2>Detector firing rates</h2><div class="firing-list empty-visual" id="firingRates">Detector rates appear here when event data is available.</div><div class="fine-divider"></div><div class="small-muted" id="decoderNote">Predictions and observed logical flips are needed to calculate decoded failures.</div></section></div><div class="single-panel"><section class="panel"><div class="section-kicker">SHOTS</div><h2>Selected shot</h2><div class="shot-summary small-muted" id="shotInspector">Select a row in the heatmap to inspect its detection pattern.</div></section></div>
+
+<div class="data-help"><div><strong>Upload detector events</strong><p>Upload <b>detector JSON</b>: required <code>det_events</code> (shots × detectors), optional <code>obs_flips</code> and <code>predicted_flips</code> (shots × logical observables). Raw IQM counts alone cannot be decoded here.</p></div><button class="button secondary" data-go="upload" data-kind="events">Upload detector events →</button></div></section>
+<section class="page" id="page-circuit"><div class="toolbar"><div class="toolbar-group" style="flex:1;max-width:680px"><label for="circuitSelect">Compilation report</label><select class="input" id="circuitSelect"></select></div><button class="button secondary" data-go="upload" data-kind="circuit">Upload audit JSON →</button></div><div class="metric-grid"><article class="metric"><div class="metric-title">Explicit SWAPs</div><strong id="swapMetric">—</strong><small>Native instruction count</small></article><article class="metric"><div class="metric-title">Extra CZ gates</div><strong id="overheadMetric">—</strong><small>Against required schedule</small></article><article class="metric"><div class="metric-title">CZ gates</div><strong id="czMetric">—</strong></article><article class="metric"><div class="metric-title">PRX gates</div><strong id="prxMetric">—</strong></article></div><div class="panel"><h2>Compilation evidence</h2><div class="metadata" id="auditDetails"></div><div class="notice small" id="auditCaution"></div></div><div class="data-help"><div><strong>Upload compilation audit</strong><p>JSON generated by the audit script: actual gate counts, explicit SWAPs, expected and observed CZ counts, dependency depth, and topology-check status. Do not upload a raw circuit here. A report is not independent verification.</p><a download="" href="./examples/emerald_compilation_audit.json">Download saved Emerald audit</a></div><button class="button secondary" data-go="upload" data-kind="circuit">Upload circuit audit →</button></div><details class="panel compare-fold"><summary>Reference circuit diagrams <span>Optional · one-round Emerald compilation</span></summary><div class="columns-equal"><section><h3>Logical circuit</h3><div class="circuit-frame"><img alt="Saved one-round logical circuit" loading="lazy" src="./assets/circuit_logical_d3_Z_r1.png"/></div></section><section><h3>Native circuit</h3><div class="circuit-frame"><img alt="Saved one-round Emerald native circuit" loading="lazy" src="./assets/circuit_native_d3_Z_r1_emerald.png"/></div></section></div><p class="small-muted">These images are separate reference artifacts, not the selected audit or Garnet memory results.</p></details></section>
+
+<section class="page" id="page-upload">
+<div class="two-toolbar"><div><div class="section-kicker">CONTRIBUTE A RUN</div><h2>Upload data</h2><p>Select a data type, choose your file, and publish it for the team.</p></div><button class="button ghost" data-go="overview">← Results</button></div>
+<div class="upload-layout">
+<section class="panel"><div aria-label="Result type" class="upload-kinds" role="group">
+<button class="upload-kind active" data-upload-kind="aggregate" type="button"><strong>01 · Results</strong><span>Logical error vs rounds</span></button>
+<button class="upload-kind" data-upload-kind="events" type="button"><strong>02 · Decoder</strong><span>Per-shot detection events</span></button>
+<button class="upload-kind" data-upload-kind="circuit" type="button"><strong>03 · Circuit audit</strong><span>SWAP, CZ, PRX and depth</span></button>
+</div><div aria-live="polite" class="format-required" id="uploadRequirement"></div><div aria-label="Select result file" class="dropzone" id="dropzone" role="button" tabindex="0"><div class="upload-icon">↑</div><strong>Drop your result file here</strong><p>or click to browse · JSON / CSV · maximum 2 MB</p><input accept=".json,.csv,application/json,text/csv" hidden="" id="fileInput" type="file"/></div><div class="file-details" id="fileDetails">No file selected</div>
+<form class="upload-form" id="uploadForm"><div class="form-row"><label>Experiment name<input class="input" id="uploadLabel" maxlength="70" placeholder="e.g. Garnet d3 · calibrated decoder" required=""/></label><label>Processor<input class="input" id="uploadDevice" maxlength="40" placeholder="garnet / emerald / simulator" required=""/></label></div><div class="form-row"><label>Code distance<input class="input" id="uploadDistance" max="31" min="1" required="" type="number" value="3"/></label><label>Memory basis<select class="input" id="uploadBasis"><option value="Z">Z memory</option><option value="X">X memory</option></select></label></div><label class="hidden" id="parentField">Related aggregate experiment<select class="input" id="parentSelect"><option value="">None / standalone detector dataset</option></select></label><label>Notes (optional)<textarea class="input textarea" id="uploadNotes" maxlength="240" placeholder="What changed in this experiment?" rows="3"></textarea></label><div class="notice small" id="uploadAvailability">Shared upload requires the database to be configured by the repository owner.</div><button class="button primary wide" disabled="" id="publishButton" type="submit">Publish to dashboard →</button></form></section>
+<aside class="panel preview-panel"><div class="section-kicker">BEFORE YOU PUBLISH</div><h2>Data preview</h2><div class="preview-empty" id="uploadPreview">Choose an experiment file. We'll show its type, metadata, and data checks here.</div><div class="fine-divider"></div><h3>Required data format</h3><p class="small-muted" id="formatDescription"></p><pre class="format-example" id="formatExample"></pre>
+<div id="exampleDownloads"><a class="example-link" download="" href="./examples/garnet_d3_z_results.json">↓ Aggregate JSON example</a><a class="example-link" download="" href="./examples/aggregate_rounds.csv">↓ Aggregate CSV example</a><a class="example-link" download="" href="./examples/synthetic_detector_events.json">↓ Synthetic detector JSON (demo only)</a><a class="example-link" download="" href="./examples/emerald_compilation_audit.json">↓ Compilation audit JSON example</a></div>
+<div class="notice small">Public uploads: only upload non-sensitive experimental data. Never upload IQM tokens or secret keys. Uploaded runs are visible to everyone.</div></aside>
+</div>
+</section>
+<footer class="footer"><span>QEC LAB / Built for surface-code memory experiments</span><span>Analysis is not an independent validation of IQM hardware.</span></footer>
+</main>
+</div>
+</body>
+</html>
