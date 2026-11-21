@@ -1,0 +1,36 @@
+{
+  "artifact": "iqm_circuit_d3_Z_r3_emerald.json",
+  "calibration_set_id": "ecec1d0a-1529-4c90-9b02-d1b30ddaa2e3",
+  "code_distance_inferred": 3,
+  "data_qubits": 9,
+  "ancilla_qubits": 8,
+  "physical_qubits_used": 17,
+  "inferred_rounds_from_CZ_multiplicities": 3,
+  "gate_counts": {
+    "prx": 104,
+    "cz": 72,
+    "measure": 33
+  },
+  "distinct_CZ_pairs": 24,
+  "expected_surface_code_CZ_pairs": 24,
+  "expected_interaction_set_matches_CZ_pairs": true,
+  "missing_CZ_pairs": [],
+  "unexpected_CZ_pairs": [],
+  "CZ_pair_multiplicities": {
+    "3": 24
+  },
+  "ideal_CZ_count_for_this_schedule": 72,
+  "observed_CZ_count": 72,
+  "CZ_overhead_vs_schedule": 0,
+  "explicit_swap_instructions": 0,
+  "dependency_depth_all_native_operations": 25,
+  "dependency_depth_CZ_only": 12,
+  "expected_measurements_if_no_reset": 33,
+  "observed_measurements": 33,
+  "native_gate_names_only": true,
+  "topology_check": "NOT DONE: provide the hardware CZ coupler list using --couplers",
+  "device": "emerald",
+  "distance": 3,
+  "basis": "Z",
+  "rounds": 3
+}
